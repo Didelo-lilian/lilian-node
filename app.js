@@ -8,16 +8,17 @@ const schoolSubjectRoutes = require('./routes/schoolSubject');
 const homeRoutes = require('./routes/home');
 
 
-const confDbMg = require('./config').dev.database.mongodb;
+// const confDbMg = require('./config').dev.database.mongodb;
+require ('dotenv').config();
 
 const app = express();
 // console.log(`mongodb+srv://${confDbMg.user}:${confDbMg.password}@${confDbMg.host}/${confDbMg.db}?retryWrites=true&w=majority`);
 
 mongoose
-  .connect(`mongodb+srv://${confDbMg.user}:${confDbMg.password}@${confDbMg.host}/${confDbMg.db}?retryWrites=true&w=majority`,
+  .connect(`mongodb+srv://${process.env.dbUser}:${process.env.dbPassword}@${process.env.dbHost}/${process.env.dbName}?retryWrites=true&w=majority`,
   { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to database'))
-    .catch(() => console.log('Connection failed'));
+//     .catch(() => console.log('Connection failed'));
 
 app.use(express.json());
 
