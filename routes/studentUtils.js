@@ -8,7 +8,7 @@ router
   .post("/", studentUtilsCtrl.createStudentUtils)
   .get("/", studentUtilsCtrl.getStudentUtils)
   .delete("/", studentUtilsCtrl.deleteStudentUtils)
-  // .put("/:title", studentUtilsCtrl.updateStudentUtils)
+  .put("/", studentUtilsCtrl.updateStudentUtils)
   ;
 
 module.exports = router;

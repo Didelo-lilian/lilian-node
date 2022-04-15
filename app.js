@@ -4,6 +4,7 @@ const path = require('path');
 
 const studentRoutes = require('./routes/student');
 const studentUtilsRoutes = require('./routes/studentUtils');
+const schoolSubjectRoutes = require('./routes/schoolSubject');
 
 
 const confDbMg = require('./config').dev.database.mongodb;
@@ -28,7 +29,9 @@ app.use((req, res, next) => {
 
 app
   .use('/api/student', studentRoutes)
-  .use('/api/studentUtils', studentUtilsRoutes);
+  .use('/api/studentUtils', studentUtilsRoutes)
+  .use('/api/school', schoolSubjectRoutes);
+
 
 
 module.exports = app;
