@@ -25,23 +25,34 @@ exports.createStudent = (req, res) => {
 		});
 };
 
-
 exports.getStudents = (req, res) => {
-	if(req.body.name){
+	if (req.body.name) {
 		Student.findOne({ name: req.body.name })
-		.then((student) => res.json({message: "Student found", student}))
-		.catch((err) =>
-			res.status(404).json({ noStudentFound: "No student found with that ID" })
-		);
+			.then((student) => res.json({ message: "Student found", student }))
+			.catch((err) =>
+				res
+					.status(404)
+					.json({ noStudentFound: "No student found with that ID" })
+			);
 	} else {
 		Student.find()
-		.then((students) => res.json({message: "Students found", students}))
-		.catch((err) =>
-			res.status(404).json({ noStudentsFound: "No students found" })
-		);
+			.then((students) => res.json({ message: "Students found", students }))
+			.catch((err) =>
+				res.status(404).json({ noStudentsFound: "No students found" })
+			);
 	}
 };
 
+exports.getStudent = (req, res) => {
+	Student.findOne({ name: req.params.name })
+		.then((student) => {
+			console.log(req.params.name, student);
+			res.json({ message: "Student found", student });
+		})
+		.catch((err) =>
+			res.status(404).json({ noStudentFound: "No student found with that ID" })
+		);
+};
 
 exports.deleteStudent = (req, res) => {
 	Student.findOneAndDelete({ name: req.body.name })
@@ -50,7 +61,6 @@ exports.deleteStudent = (req, res) => {
 			res.status(404).json({ noStudentFound: "No student found" })
 		);
 };
-
 
 exports.updateStudent = (req, res) => {
 	Student.findOne({ name: req.body.name })
@@ -63,11 +73,11 @@ exports.updateStudent = (req, res) => {
 				});
 			} else {
 				student.cours.forEach((element) => {
-          console.log(element);
+					console.log(element);
 					if (element.month === req.body.month) {
 						element.lessons.push(req.body.lessons);
 					}
-          console.log(element);
+					console.log(element);
 				});
 			}
 			Student.updateOne({ name: req.body.name }, student)
