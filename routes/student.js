@@ -7,6 +7,7 @@ const studentCtrl = require("../controllers/student");
 router
   .post("/", studentCtrl.createStudent)
   .get("/", studentCtrl.getStudents)
+  .get("/:name", studentCtrl.getStudent)
   .delete("/", studentCtrl.deleteStudent)
   .put("/", studentCtrl.updateStudent)
   ;

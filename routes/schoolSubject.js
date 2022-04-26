@@ -6,7 +6,7 @@ const schoolSubjectCtrl = require("../controllers/schoolSubject");
 
 router
   .post("/", schoolSubjectCtrl.createSchoolSubject)
-  .get("/", schoolSubjectCtrl.getSchoolSubject)
+  .get("/:title", schoolSubjectCtrl.getSchoolSubject)
   .delete("/", schoolSubjectCtrl.deleteSchoolSubject)
   .put("/", schoolSubjectCtrl.updateSchoolSubject)
   ;
