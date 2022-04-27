@@ -19,8 +19,11 @@
   },
   "homepage": "https://github.com/LilianSOLER/lilian-node#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
-    "mongoose": "^6.2.11"
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.2.11",
+    "mongoose-unique-validator": "^3.0.0"
   }
 }

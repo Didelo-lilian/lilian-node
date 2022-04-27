@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 
 const studentUtilsCtrl = require("../controllers/studentUtils");
-// const auth = require("../middleware/auth");
+const auth = require("../middleware/auth");
 
 router
-  .post("/", studentUtilsCtrl.createStudentUtils)
+  .post("/", auth, studentUtilsCtrl.createStudentUtils)
   .get("/", studentUtilsCtrl.getStudentUtils)
-  .delete("/", studentUtilsCtrl.deleteStudentUtils)
-  .put("/", studentUtilsCtrl.updateStudentUtils)
+  .delete("/", auth, studentUtilsCtrl.deleteStudentUtils)
+  .put("/", auth, studentUtilsCtrl.updateStudentUtils)
   ;
 
 module.exports = router;
