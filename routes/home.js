@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 
 const homeCtrl = require("../controllers/home");
-// const auth = require("../middleware/auth");
+const auth = require("../middleware/auth");
 
 router
-  .post("/", homeCtrl.createHome)
+  .post("/", auth, homeCtrl.createHome)
   .get("/", homeCtrl.getHome)
-  .delete("/", homeCtrl.deleteHome)
-  .put("/", homeCtrl.updateHome)
+  .delete("/", auth, homeCtrl.deleteHome)
+  .put("/", auth, homeCtrl.updateHome)
   ;
 
 module.exports = router;

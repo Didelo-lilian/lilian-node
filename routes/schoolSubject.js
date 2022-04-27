@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 
 const schoolSubjectCtrl = require("../controllers/schoolSubject");
-// const auth = require("../middleware/auth");
+const auth = require("../middleware/auth");
 
 router
-  .post("/", schoolSubjectCtrl.createSchoolSubject)
+  .post("/", auth, schoolSubjectCtrl.createSchoolSubject)
   .get("/:title", schoolSubjectCtrl.getSchoolSubject)
-  .delete("/", schoolSubjectCtrl.deleteSchoolSubject)
-  .put("/", schoolSubjectCtrl.updateSchoolSubject)
+  .delete("/", auth, schoolSubjectCtrl.deleteSchoolSubject)
+  .put("/", auth, schoolSubjectCtrl.updateSchoolSubject)
   ;
 
 module.exports = router;

@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
 
 const studentSchema = mongoose.Schema({
-	name: { type: String, required: true },
+	name: { type: String, required: true, unique: true },
 	class: { type: String, required: true },
 	cours: [
 		{
@@ -16,5 +17,7 @@ const studentSchema = mongoose.Schema({
 		},
 	],
 });
+
+studentSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("Student", studentSchema);
