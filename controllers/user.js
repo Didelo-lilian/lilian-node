@@ -6,6 +6,7 @@ require("dotenv").config();
 const User = require("../models/User");
 
 exports.signup = (req, res, next) => {
+	if(req.body.admin_password == process.env.ADMIN_PASSWORD) {
 	bcrypt
 		.hash(req.body.password, 10)
 		.then((hash) => {
@@ -19,6 +20,9 @@ exports.signup = (req, res, next) => {
 				.catch((err) => res.status(400).json({ err }));
 		})
 		.catch((err) => res.status(500).json({ err }));
+	} else {
+		res.status(401).json({ message: "Vous n'êtes pas autorisé à créer un utilisateur" });
+	}
 };
 
 exports.login = (req, res, next) => {
