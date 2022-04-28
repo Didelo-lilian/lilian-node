@@ -6,22 +6,24 @@ require("dotenv").config();
 const User = require("../models/User");
 
 exports.signup = (req, res, next) => {
-	if(req.body.admin_password == process.env.ADMIN_PASSWORD) {
-	bcrypt
-		.hash(req.body.password, 10)
-		.then((hash) => {
-			const user = new User({
-				email: req.body.email,
-				password: hash,
-			});
-			user
-				.save()
-				.then(() => res.status(201).json({ message: "Utilisateur créé !" }))
-				.catch((err) => res.status(400).json({ err }));
-		})
-		.catch((err) => res.status(500).json({ err }));
+	if (req.body.admin_password == process.env.ADMIN_PASSWORD) {
+		bcrypt
+			.hash(req.body.password, 10)
+			.then((hash) => {
+				const user = new User({
+					email: req.body.email,
+					password: hash,
+				});
+				user
+					.save()
+					.then(() => res.status(201).json({ message: "Utilisateur créé !" }))
+					.catch((err) => res.status(400).json({ err }));
+			})
+			.catch((err) => res.status(500).json({ err }));
 	} else {
-		res.status(401).json({ message: "Vous n'êtes pas autorisé à créer un utilisateur" });
+		res
+			.status(401)
+			.json({ message: "Vous n'êtes pas autorisé à créer un utilisateur" });
 	}
 };
 
@@ -48,3 +50,4 @@ exports.login = (req, res, next) => {
 		})
 		.catch((err) => res.status(500).json({ err }));
 };
+

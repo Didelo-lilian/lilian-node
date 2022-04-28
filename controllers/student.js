@@ -65,19 +65,25 @@ exports.deleteStudent = (req, res) => {
 exports.updateStudent = (req, res) => {
 	Student.findOne({ name: req.body.name })
 		.then((student) => {
-			console.log(student.cours);
-			if (req.body.month) {
-				student.cours.push({
-					month: req.body.month,
-					lessons: req.body.lessons,
-				});
-			} else {
+			if (req.body.month && req.body.lessons) {
+				let isMonthExist = false;
 				student.cours.forEach((element) => {
-					console.log(element);
 					if (element.month === req.body.month) {
 						element.lessons.push(req.body.lessons);
+						isMonthExist = true;
 					}
-					console.log(element);
+				});
+				if (!isMonthExist) {
+					student.cours.push({
+						month: req.body.month,
+						lessons: [req.body.lessons],
+					});
+				}
+			} else if (req.body.lessons && !req.body.month) {
+				student.cours[student.course.length - 1].lessons.push(req.body.lessons);
+			} else {
+				res.status(400).json({
+					message: "You need to provide a month and a lesson",
 				});
 			}
 			Student.updateOne({ name: req.body.name }, student)
