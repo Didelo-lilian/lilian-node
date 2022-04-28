@@ -65,6 +65,7 @@ exports.deleteStudent = (req, res) => {
 exports.updateStudent = (req, res) => {
 	Student.findOne({ name: req.body.name })
 		.then((student) => {
+			console.log(req.body, req.body.lessons)
 			if (req.body.month && req.body.lessons) {
 				let isMonthExist = false;
 				student.cours.forEach((element) => {
@@ -76,7 +77,7 @@ exports.updateStudent = (req, res) => {
 				if (!isMonthExist) {
 					student.cours.push({
 						month: req.body.month,
-						lessons: [req.body.lessons],
+						lessons: req.body.lessons,
 					});
 				}
 			} else if (req.body.lessons && !req.body.month) {
