@@ -33,11 +33,9 @@ exports.getSchoolSubject = (req, res) => {
 				res.json({ message: "SchoolSubject found", schoolSubject })
 			)
 			.catch((err) =>
-				res
-					.status(404)
-					.json({
-						noSchoolSubjectFound: "No school subject found with that ID",
-					})
+				res.status(404).json({
+					noSchoolSubjectFound: "No school subject found with that ID",
+				})
 			);
 	} else {
 		SchoolSubject.find()
@@ -50,6 +48,16 @@ exports.getSchoolSubject = (req, res) => {
 					.json({ noSchoolSubjectFound: "No school subject found" })
 			);
 	}
+};
+
+exports.getSchoolSubjects = (req, res) => {
+	SchoolSubject.find()
+		.then((schoolSubject) => {
+			res.json(schoolSubject);
+		})
+		.catch((err) =>
+			res.status(404).json({ noSchoolSubjectFound: "No school subject found" })
+		);
 };
 
 exports.deleteSchoolSubject = (req, res) => {
