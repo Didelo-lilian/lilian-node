@@ -6,6 +6,7 @@ const auth = require("../middleware/auth");
 
 router
   .post("/", auth, schoolSubjectCtrl.createSchoolSubject)
+  .get("/", schoolSubjectCtrl.getSchoolSubjects)
   .get("/:title", schoolSubjectCtrl.getSchoolSubject)
   .delete("/", auth, schoolSubjectCtrl.deleteSchoolSubject)
   .put("/", auth, schoolSubjectCtrl.updateSchoolSubject)
