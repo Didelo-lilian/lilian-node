@@ -50,9 +50,12 @@ exports.deleteStudentUtils = (req, res) => {
 };
 
 exports.updateStudentUtils = (req, res) => {
+	console.log(req.body);
+	let newTitle = req.body.newTitle != null ? req.body.newTitle : req.body.title;
+	let newLink = req.body.newLink != null ? req.body.newLink : req.body.link;
   StudentUtils.findOneAndUpdate({ title: req.body.title }, {
-    title: req.body.title,
-    link: req.body.link,
+    title: newTitle,
+    link: newLink,
   })
     .then((studentUtils) => {
       res.json(studentUtils);
