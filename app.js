@@ -10,7 +10,9 @@ const userRoutes = require('./routes/user');
 
 
 // const confDbMg = require('./config').dev.database.mongodb;
-require ('dotenv').config();
+require ('dotenv').config({ debug: true, override: false });
+
+console.log(process.env.dbName);
 
 const app = express();
 // console.log(`mongodb+srv://${confDbMg.user}:${confDbMg.password}@${confDbMg.host}/${confDbMg.db}?retryWrites=true&w=majority`);
