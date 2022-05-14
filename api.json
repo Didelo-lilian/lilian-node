@@ -13,27 +13,15 @@
     }
   ],
   "paths": {
-    "/user": {
-      "get": {
-        "summary": "Details about a user",
-        "operationId": "listUser",
+    "/api/user/signup": {
+      "post": {
+        "summary": "Create an admin",
+        "operationId": "createUser",
         "tags": [
           "user"
         ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "ID of the user",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
         "responses": {
-          "200": {
+          "201": {
             "description": "Details about a user",
             "headers": {
               "x-next": {
@@ -75,7 +63,7 @@
         ],
         "properties": {
           "email": {
-            "type": "string",
+            "type": "string"
           },
           "password": {
             "type": "string"
