@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prod": "dbName=lilian node server.js",
-    "dev": "dbName=lilian-test nodemon server.js"
+    "dev": "dbName=lilian-test nodemon server.js",
+    "start": "dbName=lilian-test node server.js"
   },
   "repository": {
     "type": "git",
