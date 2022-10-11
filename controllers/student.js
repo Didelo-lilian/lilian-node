@@ -63,7 +63,7 @@ exports.deleteStudent = (req, res) => {
 };
 
 exports.updateStudent = (req, res) => {
-	Student.findOne({ name: req.body.name })
+	Student.findOne({name: req.body.name})
 		.then((student) => {
 			console.log(req.body, req.body.lessons)
 			if (req.body.month && req.body.lessons) {
@@ -87,6 +87,27 @@ exports.updateStudent = (req, res) => {
 					message: "You need to provide a month and a lesson",
 				});
 			}
+			Student.updateOne({name: req.body.name}, student)
+				.then(() => res.json({message: "Student updated!", student}))
+				.catch((err) =>
+					res.status(400).json({error: "Unable to update student"})
+				);
+		})
+		.catch((err) =>
+			res.status(404).json({noStudentFound: "No student found"})
+		);
+}
+exports.updateStudentClass = (req, res) => {
+	Student.findOne({ name: req.body.name })
+		.then((student) => {
+			console.log(req.body);
+			if(req.body.class){
+				student.class = req.body.class;
+			} else {
+				res.status(400).json({
+					message: "You need to provide a class for the given student",
+				});
+			}
 			Student.updateOne({ name: req.body.name }, student)
 				.then(() => res.json({ message: "Student updated!", student }))
 				.catch((err) =>
@@ -97,3 +118,29 @@ exports.updateStudent = (req, res) => {
 			res.status(404).json({ noStudentFound: "No student found" })
 		);
 };
+
+exports.deleteLastLesson = (req, res) => {
+	Student.findOne({ name: req.body.name })
+		.then((student) => {
+			console.log(req.body);
+			if (student.cours.length > 0) {
+				student.cours[student.cours.length - 1].lessons.pop();
+				if(student.cours[student.cours.length - 1].lessons.length === 0){
+					student.cours.pop();
+				}
+			} else {
+				res.status(400).json({
+					message: "No lessons to delete",
+				});
+			}
+			Student.updateOne({ name: req.body.name }, student)
+				.then(() => res.json({ message: "Student updated!", student }))
+				.catch((err) =>
+					res.status(400).json({ error: "Unable to update student" })
+				);
+		})
+		.catch((err) =>
+			res.status(404).json({ noStudentFound: "No student found" })
+		);
+}
+
