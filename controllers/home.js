@@ -40,6 +40,7 @@ exports.getHome = (req, res) => {
       );
   }
 }
+  
 
 exports.deleteHome = (req, res) => {
   Home.findOneAndDelete({ language: req.body.language })
