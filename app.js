@@ -8,6 +8,8 @@ const schoolSubjectRoutes = require('./routes/schoolSubject');
 const homeRoutes = require('./routes/home');
 const userRoutes = require('./routes/user');
 
+const homePostgresRoutes = require('./routes/homePostgres');
+
 
 // const confDbMg = require('./config').dev.database.mongodb;
 require ('dotenv').config({ debug: true, override: false });
@@ -23,6 +25,7 @@ mongoose
     .then(() => console.log('Connected to database'))
 //     .catch(() => console.log('Connection failed'));
 
+
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -37,7 +40,8 @@ app
   .use('/api/studentUtils', studentUtilsRoutes)
   .use('/api/school', schoolSubjectRoutes)
   .use('/api/home', homeRoutes)
-  .use('/api/user', userRoutes);
+  .use('/api/user', userRoutes)
+  .use('/api/v2/home', homePostgresRoutes);
 
 
 
