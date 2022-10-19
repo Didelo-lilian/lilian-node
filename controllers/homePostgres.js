@@ -5,11 +5,13 @@ exports.createHome = (req, res) => {
     pool.query('Select order_number from homes where language = $1 order by order_number desc limit 1', [req.body.language], (error, results) => {
       if(error) {
         res.status(400).json({error: error});
+        return;
       }
       if(results.rows.length > 0) {
         pool.query('INSERT INTO homes (language, paragraph, order_number) VALUES ($1, $2, $3)', [req.body.language, req.body.paragraph, results.rows[0].order_number + 1], (error, results) => {
           if(error) {
             res.status(400).json({error: error});
+            return;
           }
           res.status(201).send({message: `Home added with language: ${req.body.language}, paragraph: ${req.body.paragraph}, order_number: ${results.rows[0].order_number + 1}`})
         }
@@ -18,8 +20,9 @@ exports.createHome = (req, res) => {
         pool.query('INSERT INTO homes (language, paragraph, order_number) VALUES ($1, $2, $3)', [req.body.language, req.body.paragraph, req.body.paragraph, 1], (error, results) => {
           if(error) {
             res.status(400).json({error: error});
+            return;
           }
-          res.status(201).send({message: `Home added with language: ${req.body.language}, paragraph: ${req.body.paragraph}, order_number: 1`})
+          res.status(201).json({message: `Home added with language: ${req.body.language}, paragraph: ${req.body.paragraph}, order_number: 1`})
         }
         );
       }
@@ -31,12 +34,14 @@ exports.createHome = (req, res) => {
         'SELECT order_number FROM homes WHERE language = $1 and order_number = $2', [req.body.language, req.body.order_number], (error, results) => {
           if (error) {
             res.status(400).json({error: error});
+            return;
           }
           if(results.rows.length > 0) {
             pool.query(
               'UPDATE homes SET paragraph = $1, order_number = $2 WHERE language = $3', [req.body.paragraph, req.body.order_number, req.body.language], (error, results) => {
                 if (error) {
                   res.status(400).json({error: error});
+                  return;
                 }
                 res.status(201).json({ message: 'Home updated with language: ' + req.body.language + ', paragraph: ' + req.body.paragraph + ', order_number: ' + req.body.order_number });
               }
@@ -45,10 +50,10 @@ exports.createHome = (req, res) => {
             pool.query('INSERT INTO homes (language, paragraph, order_number) VALUES ($1, $2, $3)', [req.body.language, req.body.paragraph, req.body.order_number],
             (error, results) => {
               if (error) {
-                console.log(error);
                 res.status(400).json({error: error});
+                return;
               }
-              res.status(201).send({ message:`Home added with language: ${req.body.language}, paragraph: ${req.body.paragraph}, order_number: ${req.body.order_number}`})
+              res.status(201).json({ message:`Home added with language: ${req.body.language}, paragraph: ${req.body.paragraph}, order_number: ${req.body.order_number}`})
             })  
           }
         }
@@ -68,6 +73,7 @@ exports.getHome = (req, res) => {
       (error, results) => {
         if (error) {
           res.status(400).json({error: error});
+          return;
         }
         res.status(200).json(results.rows);
       }
@@ -77,6 +83,7 @@ exports.getHome = (req, res) => {
     pool.query('SELECT paragraph FROM homes order by language, order_number', (error, results) => {
       if (error) {
         res.status(400).json({error: error});
+        return;
       }
       res.status(200).json(results.rows);
     });
@@ -85,12 +92,16 @@ exports.getHome = (req, res) => {
 
 exports.deleteHome = (req, res) => {
    if(!req.body.language) {
-        res.status(400).json({ message: 'Language is required' })
-   }
+       res.status(400).json({message: 'Language is required'})
+       return;
+    }
+
+
    pool.query(
        'Select * from homes where language = $1', [req.body.language], (error, results) => {
               if(error) {
                 res.status(400).json({error: error});
+                return;
               }
               if(results.rows.length > 0) {
                 if(!req.body.order_number) {
@@ -98,6 +109,7 @@ exports.deleteHome = (req, res) => {
                     'DELETE FROM homes WHERE language = $1', [req.body.language], (error, results) => {
                       if (error) {
                         res.status(400).json({error: error});
+                        return;
                       }
                       res.status(201).json({ message: 'Home deleted with language: ' + req.body.language });
                     }
@@ -108,12 +120,14 @@ exports.deleteHome = (req, res) => {
                         'Select * from homes where language = $1 and order_number = $2', [req.body.language, req.body.order_number], (error, results) => {
                                 if(error) {
                                     res.status(400).json({error: error});
+                                    return;
                                 }
                                 if(results.rows.length > 0) {
                                     pool.query(
                                         'DELETE FROM homes WHERE language = $1 and order_number = $2', [req.body.language, req.body.order_number], (error, results) => {
                                         if (error) {
                                             res.status(400).json({error: error});
+                                            return;
                                         }
                                         res.status(201).json({ message: 'Home deleted with language: ' + req.body.language + ', order_number: ' + req.body.order_number });
                                         }
@@ -137,6 +151,7 @@ exports.updateHome = (req, res) => {
         'UPDATE homes SET paragraph = $1 WHERE language = $2 and order_number = $3', [req.body.paragraph, req.body.language, req.body.order_number], (error, results) => {
             if (error) {
             res.status(400).json({error: error});
+            return;
             }
             res.status(201).json({ message: 'Home updated with language: ' + req.body.language + ', paragraph: ' + req.body.paragraph + ', order_number: ' + req.body.order_number });
         }

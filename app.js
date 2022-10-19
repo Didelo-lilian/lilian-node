@@ -12,6 +12,7 @@ const homeRoutes = require('./routes/home');
 const userRoutes = require('./routes/user');
 
 const homePostgresRoutes = require('./routes/homePostgres');
+const studentPostgresRoutes = require('./routes/studentPostgres');
 
 
 // const confDbMg = require('./config').dev.database.mongodb;
@@ -43,7 +44,8 @@ app
   .use('/api/school', schoolSubjectRoutes)
   .use('/api/home', homeRoutes)
   .use('/api/user', userRoutes)
-  .use('/api/v2/home', homePostgresRoutes);
+  .use('/api/v2/home', homePostgresRoutes)
+  .use('/api/v2/student', studentPostgresRoutes);
 
 
 
