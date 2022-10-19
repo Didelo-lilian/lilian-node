@@ -111,3 +111,22 @@ exports.deleteStudent = (req, res) => {
 	}
 	);
 }
+
+exports.updateStudent = (req, res) => {
+	if(!req.body.name || !req.body.level || !req.body.newName || !req.body.newLevel){
+		res.status(400).json({ message : "Please provide actual student (name, level) and new student (newName, newLevel)" });
+		return;
+	}
+
+	pool.query('UPDATE students SET level = $1 , name = $2 WHERE name = $3 AND level = $4', [req.body.newLevel, req.body.newName, req.body.name, req.body.level], (error, results) => {
+		if (error) {
+			res.status(400).json({error: error});
+			return;
+		}
+		if (results.rowCount == 0) {
+			res.status(404).json({ message : "Student not found with name: " + req.body.name });
+			return;
+		}
+		res.status(200).json( {message : `Student (name: ${req.body.name}, level: ${req.body.level}) updated with (name: ${req.body.newName}, level: ${req.body.newLevel})` });
+	});
+}

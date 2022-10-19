@@ -8,6 +8,7 @@ router
     .get("/", studentCtrl.getStudents)
     .get("/:name/:level", studentCtrl.getStudents)
     .delete("/", studentCtrl.deleteStudent)
+    .put("/", studentCtrl.updateStudent);
 ;
 
 module.exports = router;
