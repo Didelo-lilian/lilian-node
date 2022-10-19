@@ -5,5 +5,6 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
+console.log('Connected to postgres');
 
 module.exports = pool;

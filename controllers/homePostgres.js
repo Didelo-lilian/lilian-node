@@ -62,9 +62,9 @@ exports.createHome = (req, res) => {
 
 
 exports.getHome = (req, res) => {
-  if (req.body.language) {
+  if (req.params.language) {
     pool.query(
-      'SELECT paragraph FROM homes WHERE language = $1 order by order_number', [req.body.language],
+      'SELECT paragraph FROM homes WHERE language = $1 order by order_number', [req.params.language],
       (error, results) => {
         if (error) {
           res.status(400).json({error: error});
