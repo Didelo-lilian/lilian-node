@@ -1,163 +1,175 @@
 const pool = require('../queries');
 
 exports.createHome = (req, res) => {
-  if(!req.body.order_number){
-    pool.query('Select order_number from homes where language = $1 order by order_number desc limit 1', [req.body.language], (error, results) => {
-      if(error) {
-        res.status(400).json({error: error});
+    if (!(req.body.order && req.body.language && req.body.text)) {
+        res.status(400).json({message: 'Order, language and text are required'})
         return;
-      }
-      if(results.rows.length > 0) {
-        pool.query('INSERT INTO homes (language, paragraph, order_number) VALUES ($1, $2, $3)', [req.body.language, req.body.paragraph, results.rows[0].order_number + 1], (error, results) => {
-          if(error) {
+    }
+    if (!req.body.language) {
+        res.status(400).json({message: 'Language is required'})
+        return;
+    }
+    let noLanguage;
+    pool.query('Select noLanguage FROM languages' + process.env.NODE_ENV + ' WHERE language = $1', [req.body.language], (error, results) => {
+        if (error) {
             res.status(400).json({error: error});
             return;
-          }
-          res.status(201).send({message: `Home added with language: ${req.body.language}, paragraph: ${req.body.paragraph}, order_number: ${results.rows[0].order_number + 1}`})
         }
-        );
-      } else {
-        pool.query('INSERT INTO homes (language, paragraph, order_number) VALUES ($1, $2, $3)', [req.body.language, req.body.paragraph, req.body.paragraph, 1], (error, results) => {
-          if(error) {
-            res.status(400).json({error: error});
+        if (results.rows.length = !0) {
+            res.status(400).json({message: results.rows[0].length + ' language already exists'});
             return;
-          }
-          res.status(201).json({message: `Home added with language: ${req.body.language}, paragraph: ${req.body.paragraph}, order_number: 1`})
         }
-        );
-      }
-  }
-  );
-  } else {
-    if(req.body.language && req.body.paragraph) {
-      pool.query(
-        'SELECT order_number FROM homes WHERE language = $1 and order_number = $2', [req.body.language, req.body.order_number], (error, results) => {
-          if (error) {
-            res.status(400).json({error: error});
-            return;
-          }
-          if(results.rows.length > 0) {
-            pool.query(
-              'UPDATE homes SET paragraph = $1, order_number = $2 WHERE language = $3', [req.body.paragraph, req.body.order_number, req.body.language], (error, results) => {
-                if (error) {
-                  res.status(400).json({error: error});
-                  return;
-                }
-                res.status(201).json({ message: 'Home updated with language: ' + req.body.language + ', paragraph: ' + req.body.paragraph + ', order_number: ' + req.body.order_number });
-              }
-            )
-          } else {
-            pool.query('INSERT INTO homes (language, paragraph, order_number) VALUES ($1, $2, $3)', [req.body.language, req.body.paragraph, req.body.order_number],
-            (error, results) => {
-              if (error) {
+        noLanguage = results.rows[0].nolanguage;
+    });
+
+    if (!req.body.text) {
+        res.status(400).json({message: 'Text is required'})
+        return;
+    }
+
+    if (!req.body.order) {
+        pool.query('Select max(orderHomeParagraph) from homeParagraphs' + process.env.NODE_ENV + ' where nolanguage = $1', [noLanguage], (error, results) => {
+            if (error) {
                 res.status(400).json({error: error});
                 return;
-              }
-              res.status(201).json({ message:`Home added with language: ${req.body.language}, paragraph: ${req.body.paragraph}, order_number: ${req.body.order_number}`})
-            })  
-          }
-        }
-      )
-    } else {
-      res.status(400).json({ message: 'Language and paragraphs are required' })
+            }
+            req.body.order = results.rows[0].max + 1;
+        });
     }
-  }
-}
 
+    pool.query('INSERT INTO homeParagraphs' + process.env.NODE_ENV + ' (orderHomeParagraph, noLanguage, text) VALUES ($1, $2, $3)', [req.body.order, noLanguage, req.body.text], (error, results) => {
+        if (error) {
+            res.status(400).json({error: error});
+            return;
+        }
+        res.status(201).json({message: 'Home paragraph created successfully with order ' + req.body.order + ', language ' + req.body.language + ' and text ' + req.body.text});
+    });
+}
 
 
 exports.getHome = (req, res) => {
-  if (req.params.language) {
-    pool.query(
-      'SELECT paragraph FROM homes WHERE language = $1 order by order_number', [req.params.language],
-      (error, results) => {
-        if (error) {
-          res.status(400).json({error: error});
-          return;
-        }
-        res.status(200).json(results.rows);
-      }
-    );
-  }
-  else {
-    pool.query('SELECT paragraph FROM homes order by language, order_number', (error, results) => {
-      if (error) {
-        res.status(400).json({error: error});
-        return;
-      }
-      res.status(200).json(results.rows);
-    });
-  }
+    if (req.params.language) {
+        let noLanguage;
+        pool.query('Select * from languages' + process.env.NODE_ENV + ' where language = $1', [req.params.language], (error, results) => {
+            if (error) {
+                res.status(400).json({error: error});
+                return;
+            }
+            if (results.rows.length === 0) {
+                res.status(400).json({message: req.params.language + ' language does not exist'});
+                return;
+            }
+            noLanguage = results.rows[0].nolanguage;
+
+            pool.query('Select textHomeParagraph from homeParagraphs' + process.env.NODE_ENV + ' where noLanguage = $1 order by orderHomeParagraph', [noLanguage], (error, results) => {
+                if (error) {
+                    res.status(400).json({error: error});
+                    return;
+                }
+                let output = [];
+                results.rows.forEach(row => {
+                    if (output.length == 0 || output[output.length - 1].noLanguage != noLanguage) {
+                        output.push({noLanguage: noLanguage, paragraphs: [row.texthomeparagraph]});
+                    } else {
+                        output[output.length - 1].paragraphs.push(row.texthomeparagraph);
+                    }
+                });
+                res.status(200).json(output);
+                return;
+            });
+        });
+    } else {
+        pool.query('Select textHomeParagraph, noLanguage from homeParagraphs' + process.env.NODE_ENV + ' order by noLanguage, orderHomeParagraph', (error, results) => {
+                if (error) {
+                    res.status(400).json({error: error});
+                    return;
+                }
+
+                let output = [];
+                results.rows.forEach(row => {
+                    if (output.length == 0 || output[output.length - 1].noLanguage != row.nolanguage) {
+                        output.push({noLanguage: row.nolanguage, paragraphs: [row.texthomeparagraph]});
+                    } else {
+                        output[output.length - 1].paragraphs.push(row.texthomeparagraph);
+                    }
+                });
+
+                res.status(200).json(output);
+            }
+        )
+        ;
+    }
 }
 
 exports.deleteHome = (req, res) => {
-   if(!req.body.language) {
-       res.status(400).json({message: 'Language is required'})
-       return;
+    if (!req.body.language) {
+        res.status(400).json({message: 'Language is required'})
+        return;
     }
 
+    if (!req.body.order) {
+        res.status(400).json({message: 'Order is required'})
+        return;
+    }
 
-   pool.query(
-       'Select * from homes where language = $1', [req.body.language], (error, results) => {
-              if(error) {
-                res.status(400).json({error: error});
-                return;
-              }
-              if(results.rows.length > 0) {
-                if(!req.body.order_number) {
-                  pool.query(
-                    'DELETE FROM homes WHERE language = $1', [req.body.language], (error, results) => {
-                      if (error) {
-                        res.status(400).json({error: error});
-                        return;
-                      }
-                      res.status(201).json({ message: 'Home deleted with language: ' + req.body.language });
-                    }
-                  )
-                }
-                else {
-                    pool.query(
-                        'Select * from homes where language = $1 and order_number = $2', [req.body.language, req.body.order_number], (error, results) => {
-                                if(error) {
-                                    res.status(400).json({error: error});
-                                    return;
-                                }
-                                if(results.rows.length > 0) {
-                                    pool.query(
-                                        'DELETE FROM homes WHERE language = $1 and order_number = $2', [req.body.language, req.body.order_number], (error, results) => {
-                                        if (error) {
-                                            res.status(400).json({error: error});
-                                            return;
-                                        }
-                                        res.status(201).json({ message: 'Home deleted with language: ' + req.body.language + ', order_number: ' + req.body.order_number });
-                                        }
-                                    )
-                                } else {
-                                    res.status(400).json({ message: 'Order number does not exist for this language' })
-                                }
-                        }
-                    )
-                }
-              } else {
-                res.status(400).json({ message: 'Language does not exist' })
-              }
-       }
-   )
+    let noLanguage;
+    pool.query('Select noLanguage FROM languages' + process.env.NODE_ENV + ' WHERE language = $1', [req.body.language], (error, results) => {
+        if (error) {
+            res.status(400).json({error: error});
+            return;
+        }
+        if (results.rows.length = !0) {
+            res.status(400).json({message: results.rows[0].length + ' language already exists'});
+            return;
+        }
+        noLanguage = results.rows[0].nolanguage;
+    });
+
+    pool.query('DELETE FROM homeParagraph' + process.env.NODE_ENV + ' WHERE orderHomeParagraph = $1 and noLanguage = $2', [req.body.order, noLanguage], (error, results) => {
+        if (error) {
+            res.status(400).json({error: error});
+            return;
+        }
+        res.status(200).json({message: 'Home paragraph deleted successfully with order ' + req.body.order + ' and language ' + req.body.language});
+    });
 }
 
 exports.updateHome = (req, res) => {
-    if(req.body.language && req.body.order_number && req.body.paragraph) {
-        pool.query(
-        'UPDATE homes SET paragraph = $1 WHERE language = $2 and order_number = $3', [req.body.paragraph, req.body.language, req.body.order_number], (error, results) => {
-            if (error) {
+    if (!(req.body.language && req.body.order && req.body.text)) {
+        res.status(400).json({message: 'Language, order number and paragraph are required'})
+        return;
+    }
+
+    let noLanguage;
+    pool.query('Select noLanguage FROM languages' + process.env.NODE_ENV + ' WHERE language = $1', [req.body.language], (error, results) => {
+        if (error) {
             res.status(400).json({error: error});
             return;
-            }
-            res.status(201).json({ message: 'Home updated with language: ' + req.body.language + ', paragraph: ' + req.body.paragraph + ', order_number: ' + req.body.order_number });
         }
-        )
-    } else {
-        res.status(400).json({ message: 'Language, order_number and paragraph are required' })
-    }
+        if (results.rows.length = !0) {
+            res.status(400).json({message: results.rows[0].length + ' language already exists'});
+            return;
+        }
+        noLanguage = results.rows[0].nolanguage;
+    });
+
+    pool.query('Select * from homeParagraph' + process.env.NODE_ENV + ' where orderHomeParagraph = $1 and noLanguage = $2', [req.body.order, noLanguage], (error, results) => {
+        if (error) {
+            res.status(400).json({error: error});
+            return;
+        }
+        if (results.rows.length = !0) {
+            res.status(400).json({message: results.rows[0].length + ' paragraph does not exist with order ' + req.body.order + ' and language ' + req.body.language});
+            return;
+        }
+    });
+
+    pool.query('UPDATE homeParagraph' + process.env.NODE_ENV + ' SET text = $1 WHERE orderHomeParagraph = $2 and noLanguage = $3', [req.body.text, req.body.order, noLanguage], (error, results) => {
+        if (error) {
+            res.status(400).json({error: error});
+            return;
+        }
+        res.status(200).json({message: 'Home paragraph updated successfully with order ' + req.body.order + ', language ' + req.body.language + ' and text ' + req.body.text});
+    });
 }
   
