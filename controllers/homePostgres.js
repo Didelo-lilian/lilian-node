@@ -10,7 +10,7 @@ exports.createHome = (req, res) => {
         return;
     }
     let noLanguage;
-    pool.query('Select noLanguage FROM languages' + process.env.NODE_ENV + ' WHERE language = $1', [req.body.language], (error, results) => {
+    pool.query('Select noLanguage FROM languages WHERE language = $1', [req.body.language], (error, results) => {
         if (error) {
             res.status(400).json({error: error});
             return;
@@ -28,7 +28,7 @@ exports.createHome = (req, res) => {
     }
 
     if (!req.body.order) {
-        pool.query('Select max(orderHomeParagraph) from homeParagraphs' + process.env.NODE_ENV + ' where nolanguage = $1', [noLanguage], (error, results) => {
+        pool.query('Select max(orderHomeParagraph) from homeParagraphs where nolanguage = $1', [noLanguage], (error, results) => {
             if (error) {
                 res.status(400).json({error: error});
                 return;
@@ -37,7 +37,7 @@ exports.createHome = (req, res) => {
         });
     }
 
-    pool.query('INSERT INTO homeParagraphs' + process.env.NODE_ENV + ' (orderHomeParagraph, noLanguage, text) VALUES ($1, $2, $3)', [req.body.order, noLanguage, req.body.text], (error, results) => {
+    pool.query('INSERT INTO homeParagraphs (orderHomeParagraph, noLanguage, text) VALUES ($1, $2, $3)', [req.body.order, noLanguage, req.body.text], (error, results) => {
         if (error) {
             res.status(400).json({error: error});
             return;
@@ -50,7 +50,7 @@ exports.createHome = (req, res) => {
 exports.getHome = (req, res) => {
     if (req.params.language) {
         let noLanguage;
-        pool.query('Select * from languages' + process.env.NODE_ENV + ' where language = $1', [req.params.language], (error, results) => {
+        pool.query('Select * from languages where language = $1', [req.params.language], (error, results) => {
             if (error) {
                 res.status(400).json({error: error});
                 return;
@@ -61,7 +61,7 @@ exports.getHome = (req, res) => {
             }
             noLanguage = results.rows[0].nolanguage;
 
-            pool.query('Select textHomeParagraph from homeParagraphs' + process.env.NODE_ENV + ' where noLanguage = $1 order by orderHomeParagraph', [noLanguage], (error, results) => {
+            pool.query('Select textHomeParagraph from homeParagraphs where noLanguage = $1 order by orderHomeParagraph', [noLanguage], (error, results) => {
                 if (error) {
                     res.status(400).json({error: error});
                     return;
@@ -79,7 +79,7 @@ exports.getHome = (req, res) => {
             });
         });
     } else {
-        pool.query('Select textHomeParagraph, noLanguage from homeParagraphs' + process.env.NODE_ENV + ' order by noLanguage, orderHomeParagraph', (error, results) => {
+        pool.query('Select textHomeParagraph, noLanguage from homeParagraphs order by noLanguage, orderHomeParagraph', (error, results) => {
                 if (error) {
                     res.status(400).json({error: error});
                     return;
@@ -113,7 +113,7 @@ exports.deleteHome = (req, res) => {
     }
 
     let noLanguage;
-    pool.query('Select noLanguage FROM languages' + process.env.NODE_ENV + ' WHERE language = $1', [req.body.language], (error, results) => {
+    pool.query('Select noLanguage FROM languages WHERE language = $1', [req.body.language], (error, results) => {
         if (error) {
             res.status(400).json({error: error});
             return;
@@ -125,7 +125,7 @@ exports.deleteHome = (req, res) => {
         noLanguage = results.rows[0].nolanguage;
     });
 
-    pool.query('DELETE FROM homeParagraph' + process.env.NODE_ENV + ' WHERE orderHomeParagraph = $1 and noLanguage = $2', [req.body.order, noLanguage], (error, results) => {
+    pool.query('DELETE FROM homeParagraph WHERE orderHomeParagraph = $1 and noLanguage = $2', [req.body.order, noLanguage], (error, results) => {
         if (error) {
             res.status(400).json({error: error});
             return;
@@ -141,7 +141,7 @@ exports.updateHome = (req, res) => {
     }
 
     let noLanguage;
-    pool.query('Select noLanguage FROM languages' + process.env.NODE_ENV + ' WHERE language = $1', [req.body.language], (error, results) => {
+    pool.query('Select noLanguage FROM languages WHERE language = $1', [req.body.language], (error, results) => {
         if (error) {
             res.status(400).json({error: error});
             return;
@@ -153,7 +153,7 @@ exports.updateHome = (req, res) => {
         noLanguage = results.rows[0].nolanguage;
     });
 
-    pool.query('Select * from homeParagraph' + process.env.NODE_ENV + ' where orderHomeParagraph = $1 and noLanguage = $2', [req.body.order, noLanguage], (error, results) => {
+    pool.query('Select * from homeParagraph where orderHomeParagraph = $1 and noLanguage = $2', [req.body.order, noLanguage], (error, results) => {
         if (error) {
             res.status(400).json({error: error});
             return;
@@ -164,7 +164,7 @@ exports.updateHome = (req, res) => {
         }
     });
 
-    pool.query('UPDATE homeParagraph' + process.env.NODE_ENV + ' SET text = $1 WHERE orderHomeParagraph = $2 and noLanguage = $3', [req.body.text, req.body.order, noLanguage], (error, results) => {
+    pool.query('UPDATE homeParagraph SET text = $1 WHERE orderHomeParagraph = $2 and noLanguage = $3', [req.body.text, req.body.order, noLanguage], (error, results) => {
         if (error) {
             res.status(400).json({error: error});
             return;
