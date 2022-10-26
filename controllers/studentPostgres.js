@@ -1,4 +1,6 @@
 const pool = require('../queries');
+const cache = require('../cache');
+
 
 exports.getStudents = (req, res) => {
     const name = req.params.name;
@@ -29,6 +31,10 @@ exports.getStudents = (req, res) => {
 ;
 
 exports.getAllStudentsName = (req, res) => {
+    if (cache.get("studentsName")) {
+        res.status(200).send(cache.get("studentsName"));
+        return;
+    }
     const query = "Select nameStudent from students where noStudent in (select distinct noStudent from lessonsStudent)";
     pool.query(query, (err, result) => {
         if (err) {
