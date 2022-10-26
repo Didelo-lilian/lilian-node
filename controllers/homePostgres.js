@@ -1,4 +1,5 @@
 const pool = require('../queries');
+const cache = require('../cache');
 
 exports.createHome = (req, res) => {
     if (!(req.body.order && req.body.language && req.body.text)) {
@@ -49,6 +50,10 @@ exports.createHome = (req, res) => {
 
 exports.getHome = (req, res) => {
     if (req.params.language) {
+        if (cache.get('home' + req.params.language)) {
+            res.status(200).json(cache.get('home' + req.params.language));
+            return;
+        }
         let noLanguage;
         pool.query('Select * from languages where language = $1', [req.params.language], (error, results) => {
             if (error) {
