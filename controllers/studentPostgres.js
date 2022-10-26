@@ -1,132 +1,152 @@
 const pool = require('../queries');
 
-exports.createStudent = (req, res) => {
-	if(!req.body.name && req.body.level){
-		res.status(400).json({ message : "Please provide a name and a level" });
-		return;
-	}
-
-	pool.query('INSERT INTO students (name, level) VALUES ($1, $2)', [req.body.name, req.body.level], (error, results) => {
-		if (error) {
-			res.status(400).json({error: error});
-			return;
-		}
-		res.status(201).json( {message : `Student added with name: ${req.body.name}, level: ${req.body.level}` })
-	});
-}
-
 exports.getStudents = (req, res) => {
-	console.log(req.params);
-	if(req.params.name && req.params.name == "all" && req.params.level && req.params.level == "all" || (!req.params.name && !req.params.level)){
-		pool.query('SELECT * FROM students', (error, results) => {
-			if (error) {
-				res.status(400).json({error: error});
-				return;
-			}
-			if(results.rows.length == 0) {
-				res.status(404).json({ message : "No students found" });
-				return;
-			}
-			res.status(200).json(results.rows);
-		});
-		return;
-	}
+    const name = req.params.name;
+    const query = name ? `Select * from students where nameStudent = '${name}'` : "Select * from students where noStudent in (select distinct noStudent from lessonsStudent)";
+    pool.query(query, (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            }
+            if (result.rows.length > 0) {
+                let response = [];
+                result.rows.forEach(row => {
+                    response.push(row);
+                });
+                response.sort((a, b) => {
+                        return a.namestudent.localeCompare(b.namestudent);
+                    }
+                );
+                res.status(200).send(response);
 
-	if(req.params.level && (req.params.name && req.params.name == "all")){
-		pool.query('SELECT * FROM students WHERE level = $1', [req.params.level], (error, results) => {
-			if (error) {
-				res.status(400).json({error: error});
-				return;
-			}
-			if(results.rows.length == 0){
-				res.status(404).json({message: "Student(s) with level " + req.params.level + " not found"});
-				return;
-			}
-			res.status(200).json(results.rows);
-		});
-		return;
-	}
-
-	if(req.params.name && (req.params.level && req.params.level == "all")){
-		pool.query('SELECT * FROM students WHERE name = $1', [req.params.name], (error, results) => {
-			if (error) {
-				res.status(400).json({error: error});
-				return;
-			}
-			if(results.rows.length == 0){
-				res.status(404).json({message: "Student(s) with name " + req.params.name + " not found"});
-				return;
-			}
-			res.status(200).json(results.rows);
-		});
-		return;
-	}
-
-	if(req.params.name && req.params.level){
-		pool.query('SELECT * FROM students WHERE name = $1 AND level = $2', [req.params.name, req.params.level], (error, results) => {
-			if (error) {
-				res.status(400).json({error: error});
-				return;
-			}
-			if(results.rows.length == 0){
-				res.status(404).json({message: "Student with name " + req.params.name + " and level " + req.params.level + " not found"});
-				return;
-			}
-			res.status(200).json(results.rows);
-		});
-	}
+            } else {
+                res.status(404).send("No students found");
+            }
+        }
+    )
+    ;
 }
+;
+
+exports.getAllStudentsName = (req, res) => {
+    const query = "Select nameStudent from students where noStudent in (select distinct noStudent from lessonsStudent)";
+    pool.query(query, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+        if (result.rows.length > 0) {
+            let response = [];
+            result.rows.forEach(row => {
+                    response.push(row["namestudent"]);
+                }
+            );
+            response.sort();
+            res.status(200).send(response);
+        } else {
+            res.status(404).send("No students found");
+        }
+    });
+}
+
+exports.createStudent = (req, res) => {
+    if (!req.body.name && !req.body.level) {
+        res.status(400).send("Missing name and level");
+        return;
+    }
+    if (!req.body.name) {
+        res.status(400).send("Missing name");
+        return;
+    }
+    if (!req.body.level) {
+        res.status(400).send("Missing level");
+        return;
+    }
+
+    const verifyLevelOrAddNewLevel = pool.query(`Select noLevel from levelsstudent where nameLevelStudent = '${req.body.level}'`, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+            return;
+        }
+        if (result.rows.length === 0) {
+            pool.query(`Insert into levelsstudent (nameLevelStudent) values ('${req.body.level}')`, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send(err);
+                    return;
+                }
+            });
+            return result.rows[0].noLevelStudent;
+        }
+        return result.rows[0].noLevelStudent;
+    });
+
+    pool.query(`Insert into students (nameStudent, noLevelStudent) values ('${req.body.name}', '${verifyLevelOrAddNewLevel}')`, (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+                return;
+            }
+            res.status(201).send("Student created successfully with name: " + req.body.name + " and level: " + req.body.level);
+        }
+    );
+}
+;
 
 exports.deleteStudent = (req, res) => {
-	if(!req.body.name){
-		res.status(400).json({ message : "Please provide at least a name" });
-		return;
-	}
-
-	if(!req.body.level){
-		pool.query('DELETE FROM students WHERE name = $1', [req.body.name], (error, results) => {
-			if (error) {
-				res.status(400).json({error: error});
-				return;
-			}
-			if (results.rowCount == 0) {
-				res.status(404).json({ message : "Student not found with name: " + req.body.name });
-				return;
-			}
-			res.status(200).json( {message : `Student deleted with name: ${req.body.name}` })
-		});
-		return;
-	}
-
-	pool.query('DELETE FROM students WHERE name = $1 AND level = $2', [req.body.name, req.body.level], (error, results) => {
-		if (error) {
-			res.status(400).json({error: error});
-			return;
-		}
-		if (results.rowCount == 0) {
-			res.status(404).json({ message : "Student not found with name: " + req.body.name + " and level: " + req.body.level });
-			return;
-		}
-		res.status(200).json( {message : `Student deleted with name: ${req.body.name}, level: ${req.body.level}` })
-	}
-	);
+    if (!req.body.name) {
+        res.status(400).send("Missing name");
+        return;
+    }
+    const query = `Delete from students where nameStudent = '${req.body.name}'`;
+    pool.query(query, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+        res.status(200).send("Student deleted successfully with name: " + req.body.name);
+    });
 }
 
 exports.updateStudent = (req, res) => {
-	if(!req.body.name || !req.body.level || !req.body.newName || !req.body.newLevel){
-		res.status(400).json({ message : "Please provide actual student (name, level) and new student (newName, newLevel)" });
-		return;
-	}
+    if (!req.body.name && !req.body.level) {
+        res.status(400).send("Missing name and level");
+        return;
+    }
+    if (!req.body.name) {
+        res.status(400).send("Missing name");
+        return;
+    }
+    if (!req.body.level) {
+        res.status(400).send("Missing level");
+        return;
+    }
+    const verifyLevelOrAddNewLevel = pool.query(`Select noLevel from levelsstudent where nameLevelStudent = '${req.body.level}'`, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+            return;
+        }
+        if (result.rows.length === 0) {
+            pool.query(`Insert into levelsstudent (nameLevelStudent) values ('${req.body.level}')`, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send(err);
+                    return;
+                }
+            });
+            return result.rows[0].noLevelStudent;
+        }
+        return result.rows[0].noLevelStudent;
+    });
 
-	pool.query('UPDATE students SET level = $1 , name = $2 WHERE name = $3 AND level = $4', [req.body.newLevel, req.body.newName, req.body.name, req.body.level], (error, results) => {
-		if (error) {
-			res.status(400).json({error: error});
-			return;
-		}
-		if (results.rowCount == 0) {
-			res.status(404).json({ message : "Student not found with name: " + req.body.name });
-			return;
-		}
-		res.status(200).json( {message : `Student (name: ${req.body.name}, level: ${req.body.level}) updated with (name: ${req.body.newName}, level: ${req.body.newLevel})` });
-	});
+    const query = `Update students set noLevelStudent = '${verifyLevelOrAddNewLevel}' where nameStudent = '${req.body.name}'`;
+    pool.query(query, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+        res.status(200).send("Student updated successfully with name: " + req.body.name + " and level: " + req.body.level);
+    });
 }
