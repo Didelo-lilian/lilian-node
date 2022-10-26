@@ -39,6 +39,9 @@ const getHomeParagraphsByLanguage = (language) => {
             if (err) {
                 console.log(err);
             }
+            if (!result.rows) {
+                return;
+            }
             if (result.rows.length > 0) {
                 let output = [];
                 result.rows.forEach(row => {
@@ -56,7 +59,7 @@ const getHomeParagraphsByLanguage = (language) => {
 }
 
 const updateTime = 5000; // 5 seconds
-const languages = ["English", "French", "German", "Italian", "Spanish"]; // languages to cache
+const languages = ["English", "French", "Spanish"]; // languages to cache
 
 setInterval(() => { // Update cache every 5 seconds
     getAllStudentsNames();
