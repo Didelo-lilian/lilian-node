@@ -58,6 +58,23 @@ const getHomeParagraphsByLanguage = (language) => {
     ;
 }
 
+const getAllLevelSchool = () => {
+    pool.query("select nameLevelSchool from levelsSchool", (error, results) => {
+        if (error) {
+            return;
+        }
+        if (results.rows.length === 0) {
+            return;
+        }
+        let output = [];
+        results.rows.forEach(row => {
+                output.push(row.namelevelschool);
+            }
+        );
+        cache.set("levelsSchool", output);
+    });
+}
+
 const updateTime = 5000; // 5 seconds
 const languages = ["English", "French", "Spanish"]; // languages to cache
 
@@ -67,6 +84,7 @@ setInterval(() => { // Update cache every 5 seconds
             getHomeParagraphsByLanguage(language);
         }
     );
+    getAllLevelSchool();
 }, updateTime);
 
 module.exports = cache;
