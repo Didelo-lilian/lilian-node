@@ -10,6 +10,12 @@ const getAllStudentsNames = () => {
         if (err) {
             console.log(err);
         }
+        if (result === undefined) {
+            return;
+        }
+        if (result.rows === undefined) {
+            return;
+        }
         if (result.rows.length > 0) {
             let response = [];
             result.rows.forEach(row => {
@@ -28,6 +34,12 @@ const getHomeParagraphsByLanguage = (language) => {
             if (error) {
                 return;
             }
+            if (results === undefined) {
+                return;
+            }
+            if (results.rows === undefined) {
+                return;
+            }
             if (results.rows.length === 0) {
                 return;
             }
@@ -35,16 +47,19 @@ const getHomeParagraphsByLanguage = (language) => {
         }
     );
     const query = 'Select textHomeParagraph from homeParagraphs where noLanguage = $1 order by orderHomeParagraph';
-    pool.query(query, [noLanguage], (err, result) => {
+    pool.query(query, [noLanguage], (err, results) => {
             if (err) {
                 console.log(err);
             }
-            if (!result.rows) {
+            if (results === undefined) {
                 return;
             }
-            if (result.rows.length > 0) {
+            if (results.rows === undefined) {
+                return;
+            }
+            if (results.rows.length > 0) {
                 let output = [];
-                result.rows.forEach(row => {
+                results.rows.forEach(row => {
                     if (output.length == 0 || output[output.length - 1].noLanguage != noLanguage) {
                         output.push({noLanguage: noLanguage, paragraphs: [row.texthomeparagraph]});
                     } else {
@@ -59,20 +74,30 @@ const getHomeParagraphsByLanguage = (language) => {
 }
 
 const getAllLevelSchool = () => {
-    pool.query("select nameLevelSchool from levelsSchool", (error, results) => {
-        if (error) {
-            return;
-        }
-        if (results.rows.length === 0) {
-            return;
-        }
-        let output = [];
-        results.rows.forEach(row => {
-                output.push(row.namelevelschool);
+    pool.query("select nameLevelSchool || '/\' || nameSchool as schoolRoad from schools natural join levelsSchool order by nameLevelSchool desc , nameSchool", (error, results) => {
+            if (error) {
+                res.status(400).json({error: error});
+                return;
             }
-        );
-        cache.set("levelsSchool", output);
-    });
+            if (results === undefined) {
+                return;
+            }
+            if (results.rows === undefined) {
+                return;
+            }
+            if (results.rows.length === 0) {
+                return;
+            }
+
+            let output = [];
+            results.rows.forEach(row => {
+                    output.push(row.schoolroad);
+                }
+            );
+            cache.set("schools", output);
+        }
+    )
+    ;
 }
 
 const updateTime = 5000; // 5 seconds
