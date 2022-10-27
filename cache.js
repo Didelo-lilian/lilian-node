@@ -29,9 +29,9 @@ const getAllStudentsNames = () => {
 }
 
 const getHomeParagraphsByLanguage = (language) => {
-    let noLanguage;
     pool.query('Select * from languages where language = $1', [language], (error, results) => {
             if (error) {
+                console.log(error);
                 return;
             }
             if (results === undefined) {
@@ -43,40 +43,44 @@ const getHomeParagraphsByLanguage = (language) => {
             if (results.rows.length === 0) {
                 return;
             }
-            noLanguage = results.rows[0].nolanguage;
+            const noLanguage = results.rows[0]["nolanguage"];
+            if (noLanguage === undefined) {
+                return;
+            }
+
+            const query = 'Select textHomeParagraph from homeParagraphs where noLanguage = $1 order by orderHomeParagraph';
+            pool.query(query, [noLanguage], (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    if (results === undefined) {
+                        return;
+                    }
+                    if (results.rows === undefined) {
+                        return;
+                    }
+                    if (results.rows.length > 0) {
+                        let output = [];
+                        results.rows.forEach(row => {
+                            if (output.length == 0 || output[output.length - 1].noLanguage != noLanguage) {
+                                output.push({noLanguage: noLanguage, paragraphs: [row.texthomeparagraph]});
+                            } else {
+                                output[output.length - 1].paragraphs.push(row.texthomeparagraph);
+                            }
+                        });
+                        cache.set('home' + language, output);
+                    }
+                }
+            )
         }
     );
-    const query = 'Select textHomeParagraph from homeParagraphs where noLanguage = $1 order by orderHomeParagraph';
-    pool.query(query, [noLanguage], (err, results) => {
-            if (err) {
-                console.log(err);
-            }
-            if (results === undefined) {
-                return;
-            }
-            if (results.rows === undefined) {
-                return;
-            }
-            if (results.rows.length > 0) {
-                let output = [];
-                results.rows.forEach(row => {
-                    if (output.length == 0 || output[output.length - 1].noLanguage != noLanguage) {
-                        output.push({noLanguage: noLanguage, paragraphs: [row.texthomeparagraph]});
-                    } else {
-                        output[output.length - 1].paragraphs.push(row.texthomeparagraph);
-                    }
-                });
-                cache.set('home' + language, output);
-            }
-        }
-    )
-    ;
+
 }
 
 const getAllLevelSchool = () => {
     pool.query("select nameLevelSchool || '/\' || nameSchool as schoolRoad from schools natural join levelsSchool order by nameLevelSchool desc , nameSchool", (error, results) => {
             if (error) {
-                res.status(400).json({error: error});
                 return;
             }
             if (results === undefined) {
