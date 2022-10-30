@@ -4,8 +4,8 @@ const cache = new NodeCache();
 const pool = require("./queries");
 
 
-const getAllStudentsNames = () => {
-    const query = "Select nameStudent from students where noStudent in (select distinct noStudent from lessonsStudent)";
+const getAllStudentsInfoMin = () => {
+    const query = "Select nameStudent, nameLevelStudent from students natural join levelsStudent where noStudent in (select distinct noStudent from lessonsStudent) order by nameStudent";
     pool.query(query, (err, result) => {
         if (err) {
             console.log(err);
@@ -19,11 +19,11 @@ const getAllStudentsNames = () => {
         if (result.rows.length > 0) {
             let response = [];
             result.rows.forEach(row => {
-                    response.push(row["namestudent"]);
+                    response.push({name: row["namestudent"], level: row["namelevelstudent"]});
                 }
             );
             response.sort();
-            cache.set("studentsName", response);
+            cache.set("students", response);
         }
     });
 }
@@ -104,17 +104,118 @@ const getAllLevelSchool = () => {
     ;
 }
 
-const updateTime = 5000; // 5 seconds
+const getUtils = (req, res) => {
+    pool.query("select nameUtilStudent, linkUtilStudent from utilsstudent", (error, results) => {
+            if (error) {
+                return;
+            }
+            if (results.rows.length === 0) {
+                return;
+            }
+            let output = [];
+            results.rows.forEach(row => {
+                    output.push({name: row.nameutilstudent, link: row.linkutilstudent});
+                }
+            );
+            cache.set("utils", output);
+        }
+    )
+}
+
+
+function isInKey(output, key, value) {
+    if (output.length === 0) {
+        return {exist: false, index: -1, status: "empty"};
+    }
+    if (output[0][key] === undefined) {
+        return {exist: false, index: -1, status: "key " + key + " not found"};
+    }
+    let res = {exist: false, index: -1, status: "not found"};
+    output.forEach((row, index) => {
+            if (row[key] == value) {
+                res = {exist: true, index: index, status: "found"};
+                return;
+            }
+        }
+    );
+    return res;
+}
+
+const getAllStudents = () => {
+    pool.query("select nameStudent, nameLessonStudent, linkLessonStudent, dayLessonStudent, monthLessonStudent, yearLessonStudent from lessonsStudent natural join students order by yearLessonStudent, monthLessonStudent, dayLessonStudent", (error, results) => {
+            if (error) {
+                return;
+            }
+            if (results.rows.length === 0) {
+                return;
+            }
+            let output = [];
+            results.rows.forEach(row => {
+                //
+                let studentExist = isInKey(output, 'name', row.namestudent);
+                //student doesn't exist
+                if (!studentExist.exist) {
+                    output.push({
+                        name: row.namestudent,
+                        months: [{
+                            month: row.monthlessonstudent + '/' + row.yearlessonstudent,
+                            lessons: [{
+                                title: row.namelessonstudent,
+                                link: row.linklessonstudent,
+                                day: row.daylessonstudent
+                            }]
+                        }]
+                    });
+                } else {
+                    //verify if month exist
+                    let monthExist = isInKey(output[studentExist.index].months, 'month', row.monthlessonstudent + '/' + row.yearlessonstudent);
+                    if (!monthExist.exist) {
+                        output[studentExist.index].months.push({
+                            month: row.monthlessonstudent + '/' + row.yearlessonstudent,
+                            lessons: [{
+                                title: row.namelessonstudent,
+                                link: row.linklessonstudent,
+                                day: row.daylessonstudent
+                            }]
+                        });
+                    } else {
+                        output[studentExist.index].months[monthExist.index].lessons.push({
+                            title: row.namelessonstudent,
+                            link: row.linklessonstudent,
+                            day: row.daylessonstudent
+                        });
+                    }
+                }
+            }
+//END OF FOR EACH
+            )
+            ;
+            cache.set("lessons", output);
+        }
+    )
+    ;
+}
+
+const updateTime = 3600; // 1 hour
 const languages = ["English", "French", "Spanish"]; // languages to cache
 
-setInterval(() => { // Update cache every 5 seconds
-    getAllStudentsNames();
+const init = () => {
+    getAllStudentsInfoMin();
     languages.forEach(language => {
             getHomeParagraphsByLanguage(language);
         }
     );
     getAllLevelSchool();
-}, updateTime);
+    getUtils();
+    getAllStudents();
+}
+
+const update = () => {
+    init();
+    setTimeout(update, updateTime * 1000);
+}
+
+update();
 
 module.exports = cache;
 
