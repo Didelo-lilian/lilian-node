@@ -3,39 +3,53 @@ const cache = require('../cache');
 
 
 exports.getStudents = (req, res) => {
-    const name = req.params.name;
-    const query = name ? `Select * from students where nameStudent = '${name}'` : "Select * from students where noStudent in (select distinct noStudent from lessonsStudent)";
-    pool.query(query, (err, result) => {
-            if (err) {
-                console.log(err);
-                res.status(500).send(err);
-            }
-            if (result.rows.length > 0) {
-                let response = [];
-                result.rows.forEach(row => {
-                    response.push(row);
-                });
-                response.sort((a, b) => {
-                        return a.namestudent.localeCompare(b.namestudent);
-                    }
-                );
-                res.status(200).send(response);
-
-            } else {
-                res.status(404).send("No students found");
-            }
-        }
-    )
-    ;
-}
-;
-
-exports.getAllStudentsName = (req, res) => {
-    if (cache.get("studentsName")) {
-        res.status(200).send(cache.get("studentsName"));
+    if (!req.params.name) {
+        res.status(400).send("Missing name");
         return;
     }
-    const query = "Select nameStudent from students where noStudent in (select distinct noStudent from lessonsStudent)";
+    if (cache.get("students")) {
+        cache.get("students").forEach(student => {
+                if (student.name === req.params.name) {
+                    res.status(200).send(student);
+                    return;
+                }
+            }
+        );
+        return;
+    }
+    const query = "Select nameStudent, nameLevelStudent from students natural join levelsStudent where nameStudent = '" + req.params.name + "'";
+    pool.query(query, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.status(500).json(err);
+            return;
+        }
+        if (result === undefined) {
+            res.status(404).json("No students found");
+            return;
+        }
+        if (result.rows === undefined) {
+            res.status(404).json("No students found");
+            return;
+        }
+        if (result.rows.length > 0) {
+            let response = [];
+            result.rows.forEach(row => {
+                    response.push({name: row["namestudent"], level: row["namelevelstudent"]});
+                }
+            );
+            response.sort();
+            res.status(200).json(response);
+        }
+    });
+};
+
+exports.getAllStudentsName = (req, res) => {
+    if (cache.get("students")) {
+        res.status(200).send(cache.get("students"));
+        return;
+    }
+    const query = "Select nameStudent from students where noStudent in (select distinct noStudent from lessonsStudent) order by nameStudent";
     pool.query(query, (err, result) => {
         if (err) {
             console.log(err);
