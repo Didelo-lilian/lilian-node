@@ -142,7 +142,7 @@ function isInKey(output, key, value) {
 }
 
 const getAllStudents = () => {
-    pool.query("select nameStudent, nameLessonStudent, linkLessonStudent, dayLessonStudent, monthLessonStudent, yearLessonStudent from lessonsStudent natural join students order by yearLessonStudent, monthLessonStudent, dayLessonStudent", (error, results) => {
+    pool.query("select nameStudent, nameLessonStudent, linkLessonStudent, dayLessonStudent, monthLessonStudent, yearLessonStudent from lessonsStudent natural join students order by yearLessonStudent, monthLessonStudent, dayLessonStudent, nolessonstudent", (error, results) => {
             if (error) {
                 return;
             }
