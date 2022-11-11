@@ -34,7 +34,7 @@ exports.getStudentLessons = (req, res) => {
             return;
         }
     }
-    pool.query("select nameStudent, nameLessonStudent, linkLessonStudent, dayLessonStudent, monthLessonStudent, yearLessonStudent from lessonsStudent natural join students where nameStudent = $1 order by yearLessonStudent, monthLessonStudent, dayLessonStudent", [req.params.student], (error, results) => {
+    pool.query("select nameStudent, nameLessonStudent, linkLessonStudent, dayLessonStudent, monthLessonStudent, yearLessonStudent from lessonsStudent natural join students where nameStudent = $1 order by yearLessonStudent, monthLessonStudent, dayLessonStudent, nolessonstudent", [req.params.student], (error, results) => {
         if (error) {
             res.status(400).json({error: error});
             return;
