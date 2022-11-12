@@ -196,7 +196,7 @@ const getAllStudents = () => {
     ;
 }
 
-const updateTime = 3600; // 1 hour
+const updateTime = 60; // 1 min
 const languages = ["English", "French", "Spanish"]; // languages to cache
 
 const init = () => {
