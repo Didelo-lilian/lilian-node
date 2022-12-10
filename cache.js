@@ -78,31 +78,7 @@ const getHomeParagraphsByLanguage = (language) => {
 
 }
 
-const getAllLevelSchool = () => {
-    pool.query("select nameLevelSchool || '/\' || nameSchool as schoolRoad from schools natural join levelsSchool order by nameLevelSchool desc , nameSchool", (error, results) => {
-            if (error) {
-                return;
-            }
-            if (results === undefined) {
-                return;
-            }
-            if (results.rows === undefined) {
-                return;
-            }
-            if (results.rows.length === 0) {
-                return;
-            }
 
-            let output = [];
-            results.rows.forEach(row => {
-                    output.push(row.schoolroad);
-                }
-            );
-            cache.set("schools", output);
-        }
-    )
-    ;
-}
 
 const getUtils = (req, res) => {
     pool.query("select nameUtilStudent, linkUtilStudent from utilsstudent", (error, results) => {
@@ -205,7 +181,6 @@ const init = () => {
             getHomeParagraphsByLanguage(language);
         }
     );
-    getAllLevelSchool();
     getUtils();
     getAllStudents();
 }
