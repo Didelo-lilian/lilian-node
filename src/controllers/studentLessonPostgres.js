@@ -154,11 +154,11 @@ exports.getStudentLessonsUtils = (req, res) => {
     }
     pool.query("select nameUtilStudent, linkUtilStudent from utilsstudent", (error, results) => {
             if (error) {
-                res.status(400).json({error: error});
+                res.status(500).json({error: error});
                 return;
             }
             if (results.rows.length === 0) {
-                res.status(400).json({message: "No utils found"});
+                res.status(404).json({message: "No utils found"});
                 return;
             }
             let output = [];

@@ -1,8 +1,8 @@
-const getStudent = require("./get-student");
-const getAllStudents = require("./get-all-students");
-const createStudent = require("./create-student");
-const updateStudent = require("./update-student");
-const deleteStudent = require("./delete-student");
+const getStudent = require("./getStudent");
+const getAllStudents = require("./getAllStudents");
+const createStudent = require("./createStudent");
+const updateStudent = require("./updateStudent");
+const deleteStudent = require("./deleteStudent");
 
 module.exports = {
     paths: {

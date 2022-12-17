@@ -6,7 +6,6 @@ const auth = require("../middleware/auth");
 
 router
     .post("/", auth, homePostgresCtrl.createHome)
-    .get("/", homePostgresCtrl.getHome)
     .get("/:language", homePostgresCtrl.getHome)
     .put("/", auth, homePostgresCtrl.updateHome)
     .delete("/", auth, homePostgresCtrl.deleteHome);

@@ -56,7 +56,6 @@ module.exports = {
             HomeParagraph: {
                 type: "object",
                 properties: {
-
                     noLanguage: {
                         type: "int",
                         description: "No language",
@@ -71,6 +70,33 @@ module.exports = {
                         }
                     }
                 }
+            },
+            HomeParagraphInput: {
+                type: "object",
+                properties: {
+                    order: {
+                        type: "int",
+                        description: "Order",
+                        example: 0
+                    },
+                    language: {
+                        type: "string",
+                        description: "Language",
+                        example: "English",
+                        required: true
+                    },
+                    text: {
+                        type: "string",
+                        description: "Text",
+                        example: "This is a paragraph",
+                        required: true
+                    }
+                }
+            },
+            Language: {
+                type: "string",
+                description: "Language",
+                example: "French"
             },
             StudentName: {
                 type: "object",
@@ -142,6 +168,21 @@ module.exports = {
                             }
 
                         }
+                    }
+                }
+            },
+            UtilsStudent: {
+                type: "object",
+                properties: {
+                    name: {
+                        type: "string",
+                        description: "Resource name",
+                        example: "render page"
+                    },
+                    link: {
+                        type: "string",
+                        description: "Resource link (dont click on it)",
+                        example: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                     }
                 }
             },
