@@ -12,6 +12,5 @@ router
     .put("/", auth, studentCtrl.updateStudent)
     .put("/class", auth, studentCtrl.updateStudentClass)
     .delete("/lesson", auth, studentCtrl.deleteLastLesson);
-;
 
 module.exports = router;

@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
+
+const swaggerUi = require('swagger-ui-express');
+const docs = require('./docs');
 
 
 require('dotenv').config({debug: true, override: false, path: `.env.${process.env.NODE_ENV}`});
@@ -8,15 +10,12 @@ console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
 
 const studentRoutes = require('./routes/student');
 const studentUtilsRoutes = require('./routes/studentUtils');
-const schoolSubjectRoutes = require('./routes/schoolSubject');
 const homeRoutes = require('./routes/home');
 const userRoutes = require('./routes/user');
 
 const homePostgresRoutes = require('./routes/homePostgres');
 const studentPostgresRoutes = require('./routes/studentPostgres');
 const studentLessonPostgresRoutes = require('./routes/studentLessonPostgres');
-const schoolLessonLevelRoutes = require('./routes/levelsSchoolPostgres');
-const schoolRoutes = require('./routes/schoolPostgres');
 
 
 // const confDbMg = require('./config').dev.database.mongodb;
@@ -44,14 +43,12 @@ app.use((req, res, next) => {
 app
     .use('/api/student', studentRoutes)
     .use('/api/studentUtils', studentUtilsRoutes)
-    .use('/api/school', schoolSubjectRoutes)
     .use('/api/home', homeRoutes)
     .use('/api/user', userRoutes)
     .use('/api/v2/home', homePostgresRoutes)
     .use('/api/v2/student', studentPostgresRoutes)
     .use('/api/v2/studentLesson', studentLessonPostgresRoutes)
-    .use('/api/v2/schoolLevel', schoolLessonLevelRoutes)
-    .use('/api/v2/school', schoolRoutes);
+    .use('/api-docs', swaggerUi.serve, swaggerUi.setup(docs));
 
 
 module.exports = app;
