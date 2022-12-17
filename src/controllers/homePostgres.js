@@ -57,18 +57,18 @@ exports.getHome = (req, res) => {
         let noLanguage;
         pool.query('Select * from languages where language = $1', [req.params.language], (error, results) => {
             if (error) {
-                res.status(400).json({error: error});
+                res.status(500).json({error: error});
                 return;
             }
             if (results.rows.length === 0) {
-                res.status(400).json({message: req.params.language + ' language does not exist'});
+                res.status(404).json({message: req.params.language + ' language does not exist'});
                 return;
             }
             noLanguage = results.rows[0].nolanguage;
 
             pool.query('Select textHomeParagraph from homeParagraphs where noLanguage = $1 order by orderHomeParagraph', [noLanguage], (error, results) => {
                 if (error) {
-                    res.status(400).json({error: error});
+                    res.status(500).json({error: error});
                     return;
                 }
                 let output = [];
@@ -86,7 +86,7 @@ exports.getHome = (req, res) => {
     } else {
         pool.query('Select textHomeParagraph, noLanguage from homeParagraphs order by noLanguage, orderHomeParagraph', (error, results) => {
                 if (error) {
-                    res.status(400).json({error: error});
+                    res.status(500).json({error: error});
                     return;
                 }
 

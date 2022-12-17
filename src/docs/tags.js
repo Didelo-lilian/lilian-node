@@ -9,7 +9,7 @@ module.exports = {
             description: "API to perform CRUD operations on students lessons",
         },
         {
-            name: "Home paragraphs CRUD operations",
+            name: "Home Paragraphs CRUD operations",
             description: "API to perform CRUD operations on home paragraphs",
         },
         {
