@@ -1,5 +1,5 @@
-const pool = require('../queries');
-const cache = require("../cache");
+const pool = require('../utils/queries');
+const cache = require("../utils/cache");
 
 exports.createStudentLesson = async (req, res) => {
 
@@ -14,9 +14,8 @@ function isInKey(output, key, value) {
     }
     let res = {exist: false, index: -1, status: "not found"};
     output.forEach((row, index) => {
-            if (row[key] == value) {
+            if (row[key] === value) {
                 res = {exist: true, index: index, status: "found"};
-                return;
             }
         }
     );

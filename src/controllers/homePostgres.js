@@ -1,5 +1,5 @@
-const pool = require('../queries');
-const cache = require('../cache');
+const pool = require('../utils/queries');
+const cache = require('../utils/cache');
 
 exports.createHome = (req, res) => {
     if (!(req.body.order && req.body.language && req.body.text)) {
@@ -16,7 +16,7 @@ exports.createHome = (req, res) => {
             res.status(400).json({error: error});
             return;
         }
-        if (results.rows.length = !0) {
+        if (results.rows.length == !0) {
             res.status(400).json({message: results.rows[0].length + ' language already exists'});
             return;
         }
@@ -73,7 +73,7 @@ exports.getHome = (req, res) => {
                 }
                 let output = [];
                 results.rows.forEach(row => {
-                    if (output.length == 0 || output[output.length - 1].noLanguage != noLanguage) {
+                    if (output.length === 0 || output[output.length - 1].noLanguage !== noLanguage) {
                         output.push({noLanguage: noLanguage, paragraphs: [row.texthomeparagraph]});
                     } else {
                         output[output.length - 1].paragraphs.push(row.texthomeparagraph);
@@ -92,7 +92,7 @@ exports.getHome = (req, res) => {
 
                 let output = [];
                 results.rows.forEach(row => {
-                    if (output.length == 0 || output[output.length - 1].noLanguage != row.nolanguage) {
+                    if (output.length === 0 || output[output.length - 1].noLanguage !== row.nolanguage) {
                         output.push({noLanguage: row.nolanguage, paragraphs: [row.texthomeparagraph]});
                     } else {
                         output[output.length - 1].paragraphs.push(row.texthomeparagraph);
@@ -123,7 +123,7 @@ exports.deleteHome = (req, res) => {
             res.status(400).json({error: error});
             return;
         }
-        if (results.rows.length = !0) {
+        if (results.rows.length == !0) {
             res.status(400).json({message: results.rows[0].length + ' language already exists'});
             return;
         }
@@ -151,7 +151,7 @@ exports.updateHome = (req, res) => {
             res.status(400).json({error: error});
             return;
         }
-        if (results.rows.length = !0) {
+        if (results.rows.length == !0) {
             res.status(400).json({message: results.rows[0].length + ' language already exists'});
             return;
         }
@@ -163,7 +163,7 @@ exports.updateHome = (req, res) => {
             res.status(400).json({error: error});
             return;
         }
-        if (results.rows.length = !0) {
+        if (results.rows.length == !0) {
             res.status(400).json({message: results.rows[0].length + ' paragraph does not exist with order ' + req.body.order + ' and language ' + req.body.language});
             return;
         }

@@ -2,12 +2,12 @@
   "name": "lilian-node",
   "version": "1.0.0",
   "description": "Backend Site didelo.fr",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prod": "NODE_ENV=prod node server.js",
-    "dev": "NODE_ENV=dev nodemon server.js",
-    "start": "NODE_ENV=dev node server.js"
+    "prod": "NODE_ENV=prod node src/server.js",
+    "dev": "NODE_ENV=dev nodemon src/server.js",
+    "start": "NODE_ENV=dev node src/server.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
     "mongoose": "^6.2.11",
     "mongoose-unique-validator": "^3.0.0",
     "node-cache": "^5.1.2",
-    "pg": "^8.8.0"
+    "pg": "^8.8.0",
+    "swagger-ui-express": "^4.6.0"
   }
 }

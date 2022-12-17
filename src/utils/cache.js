@@ -63,7 +63,7 @@ const getHomeParagraphsByLanguage = (language) => {
                     if (results.rows.length > 0) {
                         let output = [];
                         results.rows.forEach(row => {
-                            if (output.length == 0 || output[output.length - 1].noLanguage != noLanguage) {
+                            if (output.length === 0 || output[output.length - 1].noLanguage !== noLanguage) {
                                 output.push({noLanguage: noLanguage, paragraphs: [row.texthomeparagraph]});
                             } else {
                                 output[output.length - 1].paragraphs.push(row.texthomeparagraph);
@@ -77,7 +77,6 @@ const getHomeParagraphsByLanguage = (language) => {
     );
 
 }
-
 
 
 const getUtils = (req, res) => {
@@ -108,7 +107,7 @@ function isInKey(output, key, value) {
     }
     let res = {exist: false, index: -1, status: "not found"};
     output.forEach((row, index) => {
-            if (row[key] == value) {
+            if (row[key] === value) {
                 res = {exist: true, index: index, status: "found"};
                 return;
             }

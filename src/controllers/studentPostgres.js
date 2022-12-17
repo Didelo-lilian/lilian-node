@@ -1,5 +1,5 @@
-const pool = require('../queries');
-const cache = require('../cache');
+const pool = require('../utils/queries');
+const cache = require('../utils/cache');
 
 
 exports.getStudents = (req, res) => {
@@ -10,8 +10,7 @@ exports.getStudents = (req, res) => {
     if (cache.get("students")) {
         cache.get("students").forEach(student => {
                 if (student.name === req.params.name) {
-                    res.status(200).send(student);
-                    return;
+                    res.status(200).json(student);
                 }
             }
         );
@@ -21,15 +20,15 @@ exports.getStudents = (req, res) => {
     pool.query(query, (err, result) => {
         if (err) {
             console.log(err);
-            res.status(500).json(err);
+            res.status(500).json({error: err});
             return;
         }
         if (result === undefined) {
-            res.status(404).json("No students found");
+            res.status(404).json({error: "No student found"});
             return;
         }
         if (result.rows === undefined) {
-            res.status(404).json("No students found");
+            res.status(404).json({error: "No student found"});
             return;
         }
         if (result.rows.length > 0) {
@@ -46,14 +45,14 @@ exports.getStudents = (req, res) => {
 
 exports.getAllStudentsName = (req, res) => {
     if (cache.get("students")) {
-        res.status(200).send(cache.get("students"));
+        res.status(200).json(cache.get("students"));
         return;
     }
     const query = "Select nameStudent from students where noStudent in (select distinct noStudent from lessonsStudent) order by nameStudent";
     pool.query(query, (err, result) => {
         if (err) {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).json({error: err});
         }
         if (result.rows.length > 0) {
             let response = [];
@@ -62,38 +61,38 @@ exports.getAllStudentsName = (req, res) => {
                 }
             );
             response.sort();
-            res.status(200).send(response);
+            res.status(200).json(response);
         } else {
-            res.status(404).send("No students found");
+            res.status(404).json({error: "No student found"});
         }
     });
 }
 
 exports.createStudent = (req, res) => {
     if (!req.body.name && !req.body.level) {
-        res.status(400).send("Missing name and level");
+        res.status(400).json({error: "Missing name and level"});
         return;
     }
     if (!req.body.name) {
-        res.status(400).send("Missing name");
+        res.status(400).json({error: "Missing name"});
         return;
     }
     if (!req.body.level) {
-        res.status(400).send("Missing level");
+        res.status(400).json({error: "Missing level"});
         return;
     }
 
     const verifyLevelOrAddNewLevel = pool.query(`Select noLevel from levelsstudent where nameLevelStudent = '${req.body.level}'`, (err, result) => {
         if (err) {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).json({error: err});
             return;
         }
         if (result.rows.length === 0) {
             pool.query(`Insert into levelsstudent (nameLevelStudent) values ('${req.body.level}')`, (err, result) => {
                 if (err) {
                     console.log(err);
-                    res.status(500).send(err);
+                    res.status(500).json({error: err});
                     return;
                 }
             });
@@ -105,10 +104,13 @@ exports.createStudent = (req, res) => {
     pool.query(`Insert into students (nameStudent, noLevelStudent) values ('${req.body.name}', '${verifyLevelOrAddNewLevel}')`, (err, result) => {
             if (err) {
                 console.log(err);
-                res.status(500).send(err);
+                res.status(500).json({error: err});
                 return;
             }
-            res.status(201).send("Student created successfully with name: " + req.body.name + " and level: " + req.body.level);
+            res.status(201).json({
+                message: "Student created successfully",
+                student: {name: req.body.name, level: req.body.level}
+            });
         }
     );
 }
@@ -116,43 +118,43 @@ exports.createStudent = (req, res) => {
 
 exports.deleteStudent = (req, res) => {
     if (!req.body.name) {
-        res.status(400).send("Missing name");
+        res.status(400).json({error: "Missing name"});
         return;
     }
     const query = `Delete from students where nameStudent = '${req.body.name}'`;
     pool.query(query, (err, result) => {
         if (err) {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).json({error: err});
         }
-        res.status(200).send("Student deleted successfully with name: " + req.body.name);
+        res.status(200).json({message: "Student deleted successfully"});
     });
 }
 
 exports.updateStudent = (req, res) => {
     if (!req.body.name && !req.body.level) {
-        res.status(400).send("Missing name and level");
+        res.status(400).json({error: "Missing name and level"});
         return;
     }
     if (!req.body.name) {
-        res.status(400).send("Missing name");
+        res.status(400).json({error: "Missing name"});
         return;
     }
     if (!req.body.level) {
-        res.status(400).send("Missing level");
+        res.status(400).json({error: "Missing level"});
         return;
     }
     const verifyLevelOrAddNewLevel = pool.query(`Select noLevel from levelsstudent where nameLevelStudent = '${req.body.level}'`, (err, result) => {
         if (err) {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).json({error: err});
             return;
         }
         if (result.rows.length === 0) {
             pool.query(`Insert into levelsstudent (nameLevelStudent) values ('${req.body.level}')`, (err, result) => {
                 if (err) {
                     console.log(err);
-                    res.status(500).send(err);
+                    res.status(500).json({error: err});
                     return;
                 }
             });
@@ -165,8 +167,8 @@ exports.updateStudent = (req, res) => {
     pool.query(query, (err, result) => {
         if (err) {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).json({error: err});
         }
-        res.status(200).send("Student updated successfully with name: " + req.body.name + " and level: " + req.body.level);
+        res.status(200).json({message: "Student updated successfully"});
     });
 }
