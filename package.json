@@ -30,5 +30,5 @@
     "pg": "^8.8.0",
     "swagger-ui-express": "^4.6.0"
   },
-  "packageManager": "yarn@3.1.0"
+  "packageManager": "yarn@3.3.0"
 }
