@@ -24,6 +24,7 @@ const studentLessonPostgresRoutes = require('./routes/studentLessonPostgres');
 const app = express();
 // console.log(`mongodb+srv://${confDbMg.user}:${confDbMg.password}@${confDbMg.host}/${confDbMg.db}?retryWrites=true&w=majority`);
 
+mongoose.set('strictQuery', true);
 mongoose
     .connect(`mongodb+srv://${process.env.dbUser}:${process.env.dbPassword}@${process.env.dbHost}/${process.env.dbName}?retryWrites=true&w=majority`,
         {useNewUrlParser: true, useUnifiedTopology: true})
