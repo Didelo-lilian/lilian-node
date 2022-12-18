@@ -6,13 +6,13 @@ const deleteStudent = require("./deleteStudent");
 
 module.exports = {
     paths: {
-        "/students/{name}": {
+        "/student/{name}": {
             ...getStudent,
         },
-        "/students/name/all": {
+        "/student/name/all": {
             ...getAllStudents,
         },
-        "/students": {
+        "/student": {
             ...createStudent,
             ...updateStudent,
             ...deleteStudent,
